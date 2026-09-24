@@ -1,0 +1,20 @@
+# 模型权重与检查点（体积大，不入库）
+ckpt/
+*.pt
+*.safetensors
+*.bin
+
+# 实验跟踪
+wandb/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 环境与密钥
+.env
+*.key
+
+# 逐题明细（含模型完整输出）。体积过大时取消下一行注释，只保留 *_summary.json
+# results/*.jsonl
