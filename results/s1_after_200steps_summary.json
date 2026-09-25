@@ -1,0 +1,20 @@
+{
+  "tag": "s1_after_200steps",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "n": 500,
+  "accuracy": 0.55,
+  "format_valid_ratio": 0.966,
+  "reward_mean": 0.743,
+  "len_mean": 163.9,
+  "len_p50": 153,
+  "len_p95": 296,
+  "len_max": 700,
+  "gen_seconds": 6.3,
+  "keyword_rates": {
+    "stepwise": 0.534,
+    "reflection": 0.01,
+    "verify": 0.036,
+    "conclude": 0.284
+  },
+  "pred_none_ratio": 0.024
+}

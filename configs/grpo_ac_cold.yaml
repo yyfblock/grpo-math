@@ -1,0 +1,46 @@
+# Stage 2-AC：SFT 冷启动后的 GRPO（测点 AC）
+#
+# 唯一变量 = 起点模型：
+#   A1 ：原始 Qwen2.5-1.5B        + 新建 r=32 / 7 模块 LoRA → GRPO 500 步
+#   AC ：s_sft_cold_m7_merged     + 新建 r=32 / 7 模块 LoRA → GRPO 500 步
+# 其余（lr、步数、G、temperature、beta、epsilon、loss_type、LoRA、seed、
+# 奖励函数、测试集）全部与 configs/grpo_a1_lr.yaml 逐字一致。
+#
+# 合并模型已验算：不挂 LoRA 评测 = 0.530，与 base+adapter 的 0.530 完全一致。
+model:
+  name: ./ckpt/s_sft_cold_m7_merged
+train:
+  run_name: s2ac_cold_lr1e-5
+  max_steps: 500
+  num_generations: 8
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  temperature: 1.0
+  beta: 0.02
+  epsilon: 0.2
+  scale_rewards: true
+  loss_type: dapo
+  learning_rate: 1.0e-5
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  max_grad_norm: 0.5
+  max_completion_length: 700
+  bf16: true
+  gradient_checkpointing: true
+  logging_steps: 1
+  save_steps: 250
+  save_total_limit: 3
+  seed: 42
+lora:
+  enabled: true
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]
+vllm:
+  mode: server
+  host: "0.0.0.0"
+  port: 8765
+log:
+  report_to: ["tensorboard"]
+  project: grpo-math

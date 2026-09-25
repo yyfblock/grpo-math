@@ -328,23 +328,43 @@ grpo-math/
 ├── configs/
 │   ├── base.yaml              全局：模型、数据、prompt、奖励权重、GPU 分工
 │   ├── grpo_1.5b.yaml         Stage 1 训练超参
-│   ├── grpo_a1_lr.yaml        A1 实验（lr=1e-5，500 步）
-│   └── grpo_a2_full.yaml      A2 实验（全参微调，500 步）
+│   ├── grpo_a1_lr.yaml        A1（LoRA, lr=1e-5, 500 步）
+│   ├── grpo_a2_full.yaml      A2（全参微调, lr=2e-6, 500 步）
+│   ├── grpo_b1_entropy.yaml   B1（A1 + 自适应熵控制）
+│   ├── grpo_b2_seed43.yaml    B2（A1 换随机种子，噪声地板）
+│   ├── sft_1.5b.yaml          实验 A：SFT 冷启动
+│   └── grpo_ac_cold.yaml      实验 A：SFT → GRPO（测点 AC）
 ├── src/
 │   ├── cfg.py                 配置加载，支持 ${a.b} 引用
 │   ├── data.py                GSM8K 加载 + prompt 构造 + 标准答案抽取
-│   ├── rewards.py         ★★★ 奖励函数（项目核心，自带 10 条边界用例）
+│   ├── rewards.py         ★★★ 奖励函数（三层分离，自带 10 条边界用例）
+│   ├── train_grpo.py      ★★★ GRPO 训练入口（含自定义诊断指标）
 │   ├── eval.py            ★★  评测（vLLM 批量生成 + 打分）
-│   ├── train_grpo.py      ★★★ 训练入口
-│   └── compare.py         ★★  配对显著性检验（McNemar）
+│   ├── compare.py         ★★★ 配对显著性检验（McNemar）
+│   ├── build_sft_data.py      GSM8K 人工解答 → SFT 样本（复用 build_prompt，自带自测）
+│   ├── train_sft.py           SFT 训练入口（配置字段对 dataclass 全量核验）
+│   ├── merge_adapter.py       LoRA adapter 合并进基座
+│   └── tic_measure.py     ★★  训推一致性直接测量（Stage 2-D）
 ├── scripts/
-│   ├── start_vllm.sh          拉起 vLLM 采样服务
-│   ├── run_train.sh           训练
+│   ├── start_vllm.sh          拉起 vLLM 采样服务（可传入模型路径）
+│   ├── run_train.sh           GRPO 训练
+│   ├── run_sft.sh             SFT 训练
 │   ├── run_eval.sh            评测
-│   └── run_stage2a.sh         A1/A2 全流程串行驱动
+│   ├── run_stage2a.sh         A1/A2 全流程串行驱动
+│   ├── run_stage2b.sh         B1/B2 全流程串行驱动
+│   └── run_tic.sh             训推一致性测量（幂等，按产物判定成败）
 ├── docs/progress.md           阶段进度记录
-└── results/                   全部实验结果
+├── results/
+│   ├── *_summary.json         每次评测的汇总（准确率、格式、长度、词频）
+│   ├── *.jsonl                逐题明细（含模型完整输出）
+│   ├── metrics_*.csv          五次训练逐步指标（熵、KL、训推偏差等）
+│   ├── <run>/train_samples_step*.jsonl   训练过程中每 25 步的真实输出快照
+│   └── tic*/report.json       训推一致性测量结果（贪心 / T=1.0 / 生成路径）
+└── requirements.txt
 ```
+
+> 检查点（`ckpt/`）与训练日志体积过大，未入库。路径可通过环境变量覆盖：
+> `CKPT_ROOT`（默认 `./ckpt`）、`HF_HOME`（默认 `~/.cache/huggingface`）。
 
 ---
 

@@ -1,0 +1,37 @@
+# Stage 2-A2：关掉 LoRA 改全参微调（83GB 显存足够）
+# 隔离的变量：LoRA 的低秩约束是不是限制了模型容量
+train:
+  run_name: s2a2_full_lr2e-6
+  max_steps: 500
+  num_generations: 8
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  temperature: 1.0
+  beta: 0.02
+  epsilon: 0.2
+  scale_rewards: true
+  loss_type: dapo
+  learning_rate: 2.0e-6        # 全参微调用更小的 lr
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  max_grad_norm: 0.5
+  max_completion_length: 700
+  bf16: true
+  gradient_checkpointing: true
+  logging_steps: 1
+  save_steps: 250
+  save_total_limit: 3
+  seed: 42
+lora:
+  enabled: false               # ← 唯一改动：关掉 LoRA，全参微调
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]
+vllm:
+  mode: server
+  host: "0.0.0.0"
+  port: 8765
+log:
+  report_to: ["tensorboard"]
+  project: grpo-math

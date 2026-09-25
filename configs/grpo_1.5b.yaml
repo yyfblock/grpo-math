@@ -1,0 +1,46 @@
+# Stage 1：跑通 GRPO。目标是 reward 曲线上涨，不追求效果。
+train:
+  run_name: s1_smoke_1.5b
+  max_steps: 200
+
+  # ---- GRPO 核心超参 ----
+  num_generations: 8          # G：每个 prompt 采样几条。组内均值当 baseline
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4   # 有效 batch = 8*4/8 = 4 个 prompt/步
+  temperature: 1.0            # 采样温度。太低会导致组内答案趋同 -> advantage 归零
+  beta: 0.02                  # KL 惩罚系数。防止模型跑离基座太远
+  epsilon: 0.2                # PPO 裁剪范围
+  scale_rewards: true         # 组内标准差归一化
+  loss_type: dapo             # token 级归一化，缓解长度偏置
+
+  learning_rate: 1.0e-6
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  max_grad_norm: 0.5
+  max_completion_length: 700
+
+  bf16: true
+  gradient_checkpointing: true
+  logging_steps: 1
+  save_steps: 50
+  seed: 42
+
+lora:
+  enabled: true
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj",
+                   "gate_proj", "up_proj", "down_proj"]
+
+vllm:
+  # server  : 另起一个 vLLM 进程独占 GPU0（推荐，两卡分工）
+  # colocate: 和训练挤同一张卡
+  # off     : 退回 HF 原生 generate（慢，但不依赖 vLLM 版本兼容性）
+  mode: server
+  host: "0.0.0.0"
+  port: 8765
+
+log:
+  report_to: ["tensorboard"]   # wandb login 之后改成 ["tensorboard","wandb"]
+  project: grpo-math

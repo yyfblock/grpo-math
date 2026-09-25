@@ -1,0 +1,20 @@
+{
+  "tag": "eval_s2b2_seed43",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "n": 500,
+  "accuracy": 0.708,
+  "format_valid_ratio": 0.996,
+  "reward_mean": 0.9068,
+  "len_mean": 164.9,
+  "len_p50": 156,
+  "len_p95": 273,
+  "len_max": 700,
+  "gen_seconds": 5.8,
+  "keyword_rates": {
+    "stepwise": 0.5,
+    "reflection": 0.01,
+    "verify": 0.016,
+    "conclude": 0.222
+  },
+  "pred_none_ratio": 0.006
+}

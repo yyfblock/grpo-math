@@ -1,0 +1,44 @@
+# Stage 2-B1：在 A1 基础上加自适应熵控制，看能否突破 71.6% 的天花板
+# 隔离的变量：熵坍缩是不是 250 步后学习停滞的原因
+train:
+  run_name: s2b1_entropy_ctrl
+  max_steps: 500
+  num_generations: 8
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  temperature: 1.0
+  beta: 0.02
+  epsilon: 0.2
+  scale_rewards: true
+  loss_type: dapo
+  learning_rate: 1.0e-5        # ← 唯一改动（10x）
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  max_grad_norm: 0.5
+  max_completion_length: 700
+  bf16: true
+  gradient_checkpointing: true
+  logging_steps: 1
+  save_steps: 250
+  save_total_limit: 3
+  seed: 42
+
+  # ★ 本组唯一改动：自适应熵控制，目标熵 0.55（A1 早期 0.67、平台 0.29）
+  use_adaptive_entropy: true
+  entropy_target: 0.55
+  entropy_coef: 0.0
+  entropy_coef_delta: 0.005
+  entropy_coef_max: 0.05
+lora:
+  enabled: true
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]
+vllm:
+  mode: server
+  host: "0.0.0.0"
+  port: 8765
+log:
+  report_to: ["tensorboard", "wandb"]
+  project: grpo-math

@@ -4,10 +4,27 @@ ckpt/
 *.safetensors
 *.bin
 
+# 训练日志：单个 100MB+
+results/*.log
+results/tb/
+results/probes/
+
+# 训推一致性测量的原始 logprob（每个约 800KB，纯数字）；只保留 report.json
+results/tic*/vllm_*.json
+results/tic*/hf_*.json
+results/tic*/tokens.jsonl
+
+# 生成产物，可由 src/build_sft_data.py 重新生成
+data/
+
 # 实验跟踪
 wandb/
 
-# Python
+# 含服务器登录信息，不对外（README.md 是其脱敏版）
+docs/RL后训练项目流程书.md
+
+# 备份与缓存
+*.bak*
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
@@ -15,6 +32,3 @@ __pycache__/
 # 环境与密钥
 .env
 *.key
-
-# 逐题明细（含模型完整输出）。体积过大时取消下一行注释，只保留 *_summary.json
-# results/*.jsonl

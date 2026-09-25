@@ -1,0 +1,55 @@
+# ============================================================
+# 实验 A：SFT 冷启动。在 Base 模型上先做监督微调，再交给 GRPO。
+#
+# 对照关系：
+#   A1（已有）：Base ──────────→ GRPO(500 步)  = 71.6%
+#   S （本配置）：Base → SFT                    = ?
+#   AC        ：Base → SFT → GRPO(500 步)      = ?   见 grpo_ac_cold.yaml
+#
+# LoRA 配置与 A1 完全一致（r=32 / alpha=64），保证后续 GRPO 阶段可比。
+# ============================================================
+sft:
+  run_name: s_sft_cold_m7
+
+  # 数据：由 src/build_sft_data.py 从 GSM8K 训练集生成（约 7.4k 条）
+  data_file: data/sft_gsm8k.jsonl
+
+  num_train_epochs: 2
+  learning_rate: 1.0e-5          # 与 A1 的 GRPO 学习率同量级
+  lr_scheduler_type: cosine
+  # TRL 1.13 的 SFTConfig 不接受 warmup_ratio（133 个合法字段里没有），只有 warmup_steps。
+  # 7473 条 /（batch 8 x accum 4）约 234 步/epoch，2 epoch 约 467 步，15 步约等于 3%
+  warmup_steps: 15
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+
+  # prompt + completion 的总长度上限。
+  # base.yaml: model.max_model_len=1536、generation.max_tokens=700，
+  # GSM8K 的人工解题过程远短于 700 token，1024 足够且省显存。
+  max_length: 1024
+
+  bf16: true
+  gradient_checkpointing: true
+
+  logging_steps: 10
+  save_strategy: epoch
+  save_total_limit: 3
+  seed: 42                       # 与 A1 同种子
+
+  # 只在 completion 上算 loss，不在 prompt 上算。
+  # 数据集带 prompt / completion 两列时 TRL 会自动做 prompt 掩码，
+  # 这里显式写出来，避免版本默认值变化导致静默改变行为。
+  completion_only_loss: true
+
+# 与 A1 逐字一致，不要改 —— 这是保证 S → AC 与 A1 可比的前提。
+# 2026-09-25 修正：初版漏写 target_modules 与 dropout，PEFT 默认只挂 q_proj/v_proj
+# 两个模块（17.4MB），而 A1 挂 7 个（147.8MB），参数量差 8.5 倍，对比不成立。
+lora:
+  enabled: true
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]

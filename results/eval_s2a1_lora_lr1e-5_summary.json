@@ -1,0 +1,20 @@
+{
+  "tag": "eval_s2a1_lora_lr1e-5",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "n": 500,
+  "accuracy": 0.716,
+  "format_valid_ratio": 0.998,
+  "reward_mean": 0.9156,
+  "len_mean": 171.2,
+  "len_p50": 162,
+  "len_p95": 284,
+  "len_max": 619,
+  "gen_seconds": 6.6,
+  "keyword_rates": {
+    "stepwise": 0.484,
+    "reflection": 0.008,
+    "verify": 0.014,
+    "conclude": 0.268
+  },
+  "pred_none_ratio": 0.0
+}

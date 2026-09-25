@@ -1,0 +1,20 @@
+{
+  "tag": "s_sft_only_m7",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "n": 500,
+  "accuracy": 0.53,
+  "format_valid_ratio": 1.0,
+  "reward_mean": 0.73,
+  "len_mean": 99.3,
+  "len_p50": 92,
+  "len_p95": 176,
+  "len_max": 285,
+  "gen_seconds": 3.4,
+  "keyword_rates": {
+    "stepwise": 0.016,
+    "reflection": 0.0,
+    "verify": 0.004,
+    "conclude": 0.214
+  },
+  "pred_none_ratio": 0.002
+}

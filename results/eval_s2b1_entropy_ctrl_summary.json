@@ -1,0 +1,20 @@
+{
+  "tag": "eval_s2b1_entropy_ctrl",
+  "model": "Qwen/Qwen2.5-1.5B",
+  "n": 500,
+  "accuracy": 0.7,
+  "format_valid_ratio": 0.998,
+  "reward_mean": 0.8995,
+  "len_mean": 162.8,
+  "len_p50": 148,
+  "len_p95": 291,
+  "len_max": 622,
+  "gen_seconds": 6.2,
+  "keyword_rates": {
+    "stepwise": 0.426,
+    "reflection": 0.01,
+    "verify": 0.03,
+    "conclude": 0.302
+  },
+  "pred_none_ratio": 0.006
+}

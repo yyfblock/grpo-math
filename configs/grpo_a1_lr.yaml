@@ -1,0 +1,37 @@
+# Stage 2-A1：只改学习率（1e-6 -> 1e-5）和步数（200 -> 500）
+# 隔离的变量：学习率是不是太小，导致模型根本没动（上一轮 KL <= 0.001）
+train:
+  run_name: s2a1_lora_lr1e-5
+  max_steps: 500
+  num_generations: 8
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  temperature: 1.0
+  beta: 0.02
+  epsilon: 0.2
+  scale_rewards: true
+  loss_type: dapo
+  learning_rate: 1.0e-5        # ← 唯一改动（10x）
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  max_grad_norm: 0.5
+  max_completion_length: 700
+  bf16: true
+  gradient_checkpointing: true
+  logging_steps: 1
+  save_steps: 250
+  save_total_limit: 3
+  seed: 42
+lora:
+  enabled: true
+  r: 32
+  alpha: 64
+  dropout: 0.0
+  target_modules: ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]
+vllm:
+  mode: server
+  host: "0.0.0.0"
+  port: 8765
+log:
+  report_to: ["tensorboard"]
+  project: grpo-math

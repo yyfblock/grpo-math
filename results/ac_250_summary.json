@@ -1,0 +1,20 @@
+{
+  "tag": "ac_250",
+  "model": "ckpt/s_sft_cold_m7_merged",
+  "n": 500,
+  "accuracy": 0.632,
+  "format_valid_ratio": 0.998,
+  "reward_mean": 0.8316,
+  "len_mean": 108.3,
+  "len_p50": 99,
+  "len_p95": 186,
+  "len_max": 434,
+  "gen_seconds": 4.3,
+  "keyword_rates": {
+    "stepwise": 0.002,
+    "reflection": 0.004,
+    "verify": 0.004,
+    "conclude": 0.298
+  },
+  "pred_none_ratio": 0.002
+}

@@ -1,0 +1,20 @@
+{
+  "tag": "eval_s2a2_full_lr2e-6",
+  "model": "ckpt/s2a2_full_lr2e-6/final",
+  "n": 500,
+  "accuracy": 0.72,
+  "format_valid_ratio": 0.996,
+  "reward_mean": 0.919,
+  "len_mean": 165.9,
+  "len_p50": 147,
+  "len_p95": 301,
+  "len_max": 700,
+  "gen_seconds": 4.9,
+  "keyword_rates": {
+    "stepwise": 0.28,
+    "reflection": 0.008,
+    "verify": 0.032,
+    "conclude": 0.438
+  },
+  "pred_none_ratio": 0.002
+}

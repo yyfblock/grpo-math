@@ -1,0 +1,70 @@
+# ============================================================
+# 全局配置：路径、模型、数据。训练/评测配置继承这里。
+# 任何数值都不写死在代码里，只在这里改。
+# ============================================================
+
+paths:
+  root:      .                  # 仓库根目录；各脚本均先 cd 到这里
+  results:   ${paths.root}/results
+  probes:    ${paths.root}/results/probes
+  ckpt:      ./ckpt             # 检查点目录；体积大，不入库
+  tb:        ${paths.root}/results/tb
+
+model:
+  # Base 模型（不是 Instruct）—— R1-Zero 路线，从没有 CoT 习惯的基座开始
+  name: Qwen/Qwen2.5-1.5B
+  dtype: bfloat16
+  max_model_len: 1536
+
+data:
+  dataset: openai/gsm8k
+  subset: main
+  train_split: train
+  test_split: test
+  # 评测用测试集的前 N 条；设为 null 用全部 1319 条
+  eval_n: 500
+  seed: 42
+
+# Base 模型没有 chat template，用纯文本 few-shot 风格的提示
+# <think> / <answer> 标签是 R1-Zero 的做法：让格式可验证
+prompt:
+  system: |
+    A conversation between User and Assistant. The User asks a question, and the
+    Assistant solves it. The Assistant first thinks about the reasoning process
+    step by step, then provides the final answer.
+    The reasoning process is enclosed within <think> </think> and the final answer
+    is enclosed within <answer> </answer>.
+  template: |
+    {system}
+    User: {question}
+    Assistant: <think>
+
+generation:
+  temperature: 0.8
+  top_p: 0.95
+  max_tokens: 700
+  # 评测时每题采样次数；1 = greedy-ish 单样本，>1 可算 pass@k
+  n: 1
+
+reward:
+  # 三层奖励。分开记录才知道模型涨的是格式还是能力。
+  w_format: 0.2      # 格式合法（有 </think> 和 <answer>...</answer>）
+  w_answer: 1.0      # 答案正确
+  # 长度惩罚：超过阈值后线性扣分，防止灌水 hacking
+  len_penalty_start: 600
+  len_penalty_scale: 0.001
+
+gpu:
+  vllm_device: "0"    # GPU0 —— 专职采样（RTX 6000D, 84GiB）
+  train_device: "1"   # GPU1 —— 专职训练（RTX 6000D, 84GiB）
+  # 2026-09-24 由 0.80 降到 0.45：本机为共享机器，他人任务占用 GPU0 约 20GB 时，
+  # 0.80 需要 66.5GiB 而可用仅 62.9GiB，vLLM 启动即 ValueError。
+  # 1.5B 权重约 3GB，0.45（约 37GiB）对 KV cache 仍绰绰有余。
+  # 注意：KV cache 变小会改变并发批大小，因评测为随机采样（temperature 0.8），
+  # 与历史结果间存在轻微不可比性，量级远小于 ±2.0 个百分点的噪声地板。
+  vllm_mem_util: 0.45
+
+# 固定探针题：不参与训练，每个 checkpoint 用同一 seed 生成，用于并排对比
+probe:
+  n: 12
+  seed: 1234

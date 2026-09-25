@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# 脚本与代码固定为 LF：在 Windows 检出后拷到 Linux 服务器也能直接运行
+*.sh    text eol=lf
+*.py    text eol=lf
+*.yaml  text eol=lf

@@ -1,0 +1,20 @@
+{
+  "tag": "merged_sanity",
+  "model": "ckpt/s_sft_cold_m7_merged",
+  "n": 500,
+  "accuracy": 0.53,
+  "format_valid_ratio": 0.996,
+  "reward_mean": 0.7292,
+  "len_mean": 101.6,
+  "len_p50": 92,
+  "len_p95": 186,
+  "len_max": 409,
+  "gen_seconds": 3.3,
+  "keyword_rates": {
+    "stepwise": 0.024,
+    "reflection": 0.004,
+    "verify": 0.004,
+    "conclude": 0.172
+  },
+  "pred_none_ratio": 0.004
+}
